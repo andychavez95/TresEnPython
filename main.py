@@ -31,69 +31,93 @@ def fill_board(board):
 
 
 # Movimientos de la computadora.
-def computer_move(board, shadown):
+def computer_move(board, occupied_rooms):
+    print("Turno de la computadora...")
     computer_number = randint(1, 9)
     rl = room_location(computer_number)
 
-    while shadown[rl[0]][rl[1]]:
+    while occupied_rooms[rl[0]][rl[1]]:
         computer_number = randint(1, 9)
         rl = room_location(computer_number)
 
     # Jugada de la computadora.
-    board[rl[0]][rl[1]] = "X"
-    shadown[rl[0]][rl[1]] = True
+    board[rl[0]][rl[1]] = "x"
+    occupied_rooms[rl[0]][rl[1]] = True
 
     # Validar si se puede seguir jugando.
-    continue_playing(board, shadown, "computer")
+    continue_playing(board, occupied_rooms, "computer", "x")
+
+
+def valid_number(number):
+    while number > 9 or number < 1:
+        number = int(input("Ingrese una ubicación valida: "))
+    return number
 
 
 # Movimientos del usuario.
-def user_move(board, shadown):
+def user_move(board, occupied_rooms):
     user_number = int(input("Ingrese el número del casillero seleccionado: "))
-    rl = room_location(user_number)
 
-    while shadown[rl[0]][rl[1]]:
+    rl = room_location(valid_number(user_number))
+
+    while occupied_rooms[rl[0]][rl[1]]:
         user_number = int(input("El casillero seleccionado ya está ocupado. Elija otro: "))
-        rl = room_location(user_number)
+        rl = room_location(valid_number(user_number))
 
     # Jugada del usuario.
-    board[rl[0]][rl[1]] = "O"
-    shadown[rl[0]][rl[1]] = True
+    board[rl[0]][rl[1]] = "o"
+    occupied_rooms[rl[0]][rl[1]] = True
 
     # Validar si se puede seguir jugando.
-    continue_playing(board, shadown, "user")
+    continue_playing(board, occupied_rooms, "user", "o")
 
 
 # Validar si se puede seguir jugando.
-def continue_playing(board, shadown, player):
-    if is_there_a_winner(shadown):
-        print("Juego terminado. Tenemos un ganador.")
-        display_board(board)
+def continue_playing(board, occupied_rooms, player, icon):
+    display_board(board)
+    if is_there_a_winner(board, icon):
+        print(f"Juego terminado. Tenemos un ganador. Ganador {player}")
+        exit()
+
+    if full_board(occupied_rooms):
+        print("Juego terminado. Es un empate.")
         exit()
 
     if player == "user":
-        computer_move(board, shadown)
+        computer_move(board, occupied_rooms)
     else:
-        user_move(board, shadown)
+        user_move(board, occupied_rooms)
+
+
+# Validar si todo el tablero está lleno.
+def full_board(board):
+    i = 0
+    for row in board:
+        for item in row:
+            if item:
+                i += 1
+
+    if i == 9:
+        return True
 
 
 # Valida si existe un ganador.
-def is_there_a_winner(shadown):
-    if shadown[0][0] and shadown[0][1] and shadown[0][2]:
+def is_there_a_winner(board, icon):
+    if board[0][0] == icon and board[0][1] == icon and board[0][2] == icon:
         return True
-    elif shadown[1][0] and shadown[1][1] and shadown[1][2]:
+    elif board[1][0] == icon and board[1][1] == icon and board[1][2] == icon:
         return True
-    elif shadown[2][0] and shadown[2][1] and shadown[2][2]:
+    elif board[2][0] == icon and board[2][1] == icon and board[2][2] == icon:
         return True
-    elif shadown[0][0] and shadown[1][0] and shadown[2][0]:
+    elif board[0][0] == icon and board[1][0] == icon and board[2][0] == icon:
         return True
-    elif shadown[0][1] and shadown[1][1] and shadown[2][1]:
+    elif board[0][1] == icon and board[1][1] == icon and board[2][1] == icon:
         return True
-    elif shadown[0][2] and shadown[1][2] and shadown[2][2]:
+    elif board[0][2] == icon and board[1][2] == icon and board[2][2] == icon:
         return True
-    elif shadown[0][0] and shadown[1][1] and shadown[2][2]:
+    elif board[0][0] == icon and board[1][1] == icon and board[2][2] == icon:
         return True
-    elif shadown[2][0] and shadown[1][1] and shadown[0][2]:
+    elif board[2][0] == icon and board[1][1] == icon and board[0][2] == icon:
         return True
     else:
         return False
@@ -130,10 +154,12 @@ def main():
     occupied_rooms = [[False for x in range(3)] for y in range(3)]
 
     # Primer jugada. La computadora.
-    board[1][1] = "X"
+    print("Turno de la computadora...")
+    board[1][1] = "x"
     occupied_rooms[1][1] = True
 
-    continue_playing(board, occupied_rooms, "computer")
+    # Continuar el juego.
+    continue_playing(board, occupied_rooms, "computer", "x")
 
 
 main()
